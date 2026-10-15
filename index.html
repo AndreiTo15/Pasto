@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pasto">
+<meta name="theme-color" content="#1d5a45">
+<title>Pasto</title>
+<style>
+:root{--bg:#f5f6f1;--card:#fff;--ink:#1d2c27;--muted:#6f7c75;--green:#1d5a45;--mint:#e6f2e8;--line:#e3e7df;--warn:#fff3e0;--warnink:#8a5a14;color-scheme:light}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121a17;--card:#1b2622;--ink:#eaf1ed;--muted:#92a39a;--green:#5fbf98;--mint:#24382f;--line:#2a3832;--warn:#3a2f1c;--warnink:#f0c27a;color-scheme:dark}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
+header{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:5;padding:12px 14px 8px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+.tabs{display:flex;gap:6px}
+.tab{flex:1;border:0;background:var(--card);color:var(--muted);border-radius:12px;padding:10px 0;font-weight:700;font-size:14px;border:1px solid var(--line)}
+.tab.on{background:var(--green);color:#fff;border-color:var(--green)}
+.tab.today:not(.on){color:var(--green);border-color:var(--green)}
+.head{display:flex;justify-content:space-between;align-items:baseline;padding:14px 4px 0}
+.head h1{margin:0;font-size:26px;letter-spacing:-.5px}
+.head span{color:var(--muted);font-size:13px}
+main{padding:4px 14px 40px;max-width:600px;margin:auto}
+.meal{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;margin-top:10px;display:flex;gap:12px;align-items:flex-start}
+.meal.done{opacity:.55;padding:10px 14px;align-items:center}
+.meal.done .items,.meal.done .note,.meal.done details{display:none}
+.meal.done .top{flex:1}
+.meal.done .name{color:var(--muted);text-decoration:line-through}
+.meal.done .chk{margin-top:0}
+.chk{flex:none;width:30px;height:30px;border-radius:50%;border:2px solid var(--line);background:transparent;display:grid;place-items:center;color:#fff;font-size:17px;padding:0;margin-top:1px}
+.done .chk{background:var(--green);border-color:var(--green)}
+.body{flex:1;min-width:0}
+.top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.name{font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--green)}
+.kcal{font-size:12px;color:var(--muted);white-space:nowrap}
+.items{list-style:none;margin:8px 0 0;padding:0;font-size:17px;line-height:1.35;font-weight:500}
+.items li{padding:3px 0}
+.note{margin-top:8px;font-size:13px;background:var(--warn);color:var(--warnink);border-radius:10px;padding:7px 10px;font-weight:600}
+details{margin-top:8px}
+summary{font-size:14px;font-weight:700;color:var(--green);cursor:pointer;padding:4px 0;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"⇄ "}
+.alt{margin:4px 0 0;font-size:15px;line-height:1.5;color:var(--muted);white-space:pre-line}
+.free{border-style:dashed}
+.cond{background:var(--mint);border-color:transparent}
+main{padding-bottom:110px}
+.nav{position:fixed;left:0;right:0;bottom:0;display:flex;gap:8px;padding:8px 14px calc(8px + env(safe-area-inset-bottom,0px));background:var(--bg);border-top:1px solid var(--line);z-index:6}
+.nav button{flex:1;border:0;background:transparent;color:var(--muted);font-weight:700;font-size:15px;padding:11px;border-radius:12px}
+.nav .on{background:var(--mint);color:var(--green)}
+.wadd{display:flex;gap:8px;margin-top:14px}
+.wadd input{flex:1;min-width:0;font-size:22px;font-weight:700;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+.wadd button{border:0;background:var(--green);color:#fff;font-weight:800;font-size:16px;padding:0 20px;border-radius:14px}
+.wbig{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-top:14px}
+.wbig b{font-size:34px;letter-spacing:-1px}
+.wbig p{margin:4px 0 0;color:var(--muted);font-size:14px}
+.wbig svg{width:100%;height:auto;margin-top:10px;display:block}
+.wrow{display:flex;align-items:center;justify-content:space-between;padding:12px 4px;border-bottom:1px solid var(--line);font-size:17px}
+.wrow button{border:0;background:transparent;color:var(--muted);font-size:18px;padding:4px 8px}
+.swap{color:var(--green);font-weight:700;font-size:16px}
+.altb{display:block;width:100%;text-align:left;border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:12px;padding:10px 12px;margin-top:6px;font-size:15px}
+.altb.sel{background:var(--mint);border-color:var(--green);font-weight:700}
+.sgrp{margin:18px 4px 2px;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--green)}
+.srow{display:flex;width:100%;align-items:center;gap:12px;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--ink);padding:12px 4px;font-size:17px;text-align:left}
+.srow span:nth-child(2){flex:1}
+.srow i{font-style:normal;color:var(--muted);font-size:14px;text-align:right}
+.srow.on{opacity:.45;text-decoration:line-through}
+.sc{width:24px;height:24px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;color:#fff;font-size:14px;flex:none}
+.srow.on .sc{background:var(--green);border-color:var(--green)}
+</style>
+</head>
+<body>
+<header><div class="tabs" id="tabs"></div></header>
+<main>
+<div class="head"><h1 id="dname"></h1><span id="dinfo"></span></div>
+<div id="list"></div>
+<div id="wt" style="display:none"></div>
+<div id="sp" style="display:none"></div>
+</main>
+<nav class="nav"><button id="np" onclick="view='p';render();window.scrollTo(0,0)">🍽 Piano</button><button id="nw" onclick="view='w';render();window.scrollTo(0,0)">⚖︎ Peso</button><button id="ns" onclick="view='s';render();window.scrollTo(0,0)">🛒 Spesa</button></nav>
+<script>
+var D=[
+["Lunedì","~1.330 kcal",[
+["Colazione","Latte p.scremato 200ml + 2 fette biscottate integrali con 2 cc rasi di marmellata + Frutta secca 10g","• 3 Biscotti Magretti (senza marmellata)\n• 25g fiocchi d'avena (porridge nel latte)\n• 150g yogurt greco 0% + 10g frutta secca","232",""],
+["Spuntino 1","Frutta fresca 150g","• 1 mela / pera / arancia media\n• 250g fragole/frutti di bosco","75",""],
+["Pranzo","Riso basmati 60g + Formaggio* (mozzarella lite / primo sale 100g) + Verdura/Ortaggi q.b.","• Couscous o Orzo 60g al posto del riso\n• Fiocchi di latte 150g o Ricotta 100g al posto del formaggio","445",""],
+["Spuntino 2","Budino proteico 200g","• Yogurt greco 0% 150g + 1 cc di miele\n• 1 shake proteico (25g whey in acqua)","150",""],
+["Cena","Petto di pollo 150g + Pane integrale 30g + Verdura/Ortaggi q.b.","• Tacchino / Coniglio 150g\n• 2.5 Gallette di mais (~20g) o 2 Wasa al posto del pane","272",""],
+["Condimenti","3 cucchiaini olio e.v.o. + 1 cucchiaino parmigiano grattugiato + Aceto di mele / Limone q.b.","Mantenere le dosi di olio per assorbire le vitamine","155",""]]],
+["Martedì","~1.170 kcal",[
+["Colazione","Pane integrale tostato 30g + Fesa di tacchino 40g + Frutta fresca 100g","• Pane → 2.5 Gallette di mais (~20g) o 2 Fette Wasa\n• Fesa → 35g Bresaola / 40g Cotto sgrassato / 100g Albume","166","Ottima carica per gli esercizi di rinforzo a casa"],
+["Spuntino 1","Frutta secca 10g","• 3-4 noci / 7-8 mandorle o nocciole","60",""],
+["Pranzo","Couscous integrale 40g con verdure miste + Ceci cotti 150g + Verdura q.b.","• Quinoa / Riso 40g\n• Fagioli / Lenticchie cotte 150g","295",""],
+["Spuntino 2","1 pacchetto di crackers* (o mezza monoporzione se da 25g)","• 3-4 crackers singoli integrali (~18g)\n• 2 gallette di riso/mais","110",""],
+["Cena","2 Uova + Pane integrale 60g + Verdura/Ortaggi q.b.","• Pane 60g → 5 Gallette di mais (~40g) o 4 Fette Wasa\n• Uova → 150g albume + 1 uovo intero","334",""],
+["Condimenti","4 cucchiaini olio e.v.o. + 1 cucchiaino parmigiano grattugiato + Aceto/Limone q.b.","Utilizzare l'olio a crudo sulle verdure","200",""]]],
+["Mercoledì","~1.450 kcal",[
+["Colazione","Latte p.scremato 200ml + 2 fette biscottate integrali con 2 cc rasi di marmellata + Frutta secca 10g","• 3 Biscotti Magretti (senza marmellata)\n• 30g pane integrale con 2 cc marmellata","232","Ricarica carboidrati in vista della corsa di domani"],
+["Spuntino 1","Frutta fresca 150g","• 1 frutto di stagione (mela, pera, kiwi)","75",""],
+["Pranzo","Riso basmati 70g + Hamburger di pollo 200g + Verdura/Ortaggi q.b.","• Pasta integrale / Farro 70g\n• Hamburger di tacchino / vitello magro 180g","520",""],
+["Spuntino 2","Budino proteico 200g","• Yogurt proteico / Skyr 150g","150",""],
+["Cena","Pesce magro 150g (orata, merluzzo, spigola) + Pane integrale 60g + Verdura q.b.","• Calamari / Seppie / Gamberi 180g\n• Pane → 5 gallette di mais (~40g)","319",""],
+["Condimenti","3 cucchiaini olio e.v.o. + 1 cucchiaino parmigiano + Aceto/Limone q.b.","Olio e.v.o. essenziale","155",""]]],
+["Giovedì","~1.420 kcal",[
+["Colazione","Latte p.scremato 200ml + 2 fette biscottate integrali con 2 cc marmellata + Frutta secca 10g","• 3 Biscotti Magretti\n• Porridge: 25g avena cotta nel latte + noci","232","Energia pulita per la giornata"],
+["Spuntino 1","Frutta fresca 150g","• 1 banana piccola o 1 mela","75",""],
+["Pranzo","Riso basmati 70g + Salmone affumicato 100g + Verdura q.b.","• Riso → Pasta integrale / Quinoa 70g\n• Salmone → Tonno al naturale 120g + 1 cc olio","480","Mangiare almeno 3 ore prima della corsa"],
+["Spuntino 2","Frutta fresca 150g","• Mela o Banana (zuccheri pronti all'uso)","75","Consumare 1-1.5 ore prima della corsa"],
+["Cena","Bovino adulto magro 150g + Pane integrale 60g + Verdura/Ortaggi q.b.","• Cavallo / Carne trita magra 150g\n• Pane → 5 gallette di mais o patate lesse 200g","359","Post-corsa: reintegra glicogeno e proteine"],
+["Condimenti","4 cucchiaini olio e.v.o. + 1 cucchiaino parmigiano + Aceto/Limone q.b.","Usa 1 cc olio a pranzo e 3 a cena","200",""]]],
+["Venerdì","~1.300 kcal",[
+["Colazione","1 Crepe (albume + farina) con cioccolato fondente 10g","• 150g albume + 30g farina d'avena in padella\n• Latte + 3 Biscotti Magretti","255",""],
+["Spuntino 1","Frutta fresca 150g","• Frutta di stagione a scelta","75",""],
+["Pranzo","Couscous integrale 40g con verdure miste + Piselli cotti 150g + Verdura q.b.","• Riso integrale 40g\n• Lenti / Fagioli 150g","285",""],
+["Spuntino 2","Budino proteico 200g","• Yogurt greco 0% 150g + cannella/miele","150",""],
+["Cena","Tortilla di patate (2 uova + patate) + Insalata mista q.b.","• Frittata al forno con patate 150g e verdure","335","Recupero muscolare per la corsa di domani"],
+["Condimenti","4 cucchiaini olio e.v.o. + 1 cucchiaino parmigiano + Aceto/Limone q.b.","Usa l'olio per la tortilla e l'insalata","200",""]]],
+["Sabato","~1.330 - 1.450 kcal",[
+["Colazione","Pane integrale tostato 30g + Fesa di tacchino 40g + Frutta fresca 100g","• Pane → 2.5 Gallette di mais (~20g)\n• Fesa → 35g Bresaola","166","Se corri di mattina: mangia 2 ore prima"],
+["Spuntino 1","Frutta secca 10g","• 7-8 mandorle / noci","60",""],
+["Pranzo","Pesce fresco 200g (orata, spigola, salmone fresco) + Verdura/Ortaggi q.b.","• Pesce spada / Cernia / Calamari 200g","235","Post-corsa (se mattina): aggiungi 1 fetta di pane"],
+["Spuntino 2","Frutta fresca 150g","• 1 frutto di stagione","75",""],
+["Cena","LIBERO (es. Pizza Margherita / cena fuori moderata)","Goditi la cena libera senza sensi di colpa!","700","Pasto libero previsto dal piano"],
+["Condimenti","2 cucchiaini olio e.v.o. + Aceto di mele / Succo di limone q.b.","Condimento ridotto a pranzo visto il pasto libero","90",""]]],
+["Domenica","~1.400 - 1.500 kcal",[
+["Colazione","Latte p.scremato 200ml + 2 fette biscottate integrali con 2 cc marmellata + Frutta secca 10g","• 3 Biscotti Magretti\n• Yogurt greco 150g + 10g frutta secca","232",""],
+["Spuntino 1","Frutta fresca 150g","• 1 frutto fresco","75",""],
+["Pranzo","LIBERO (es. pranzo in famiglia / primo speciale)","Mangia con moderazione gustandoti il pasto","750","Pasto libero previsto dal piano"],
+["Spuntino 2","Frutta fresca 150g","• 1 frutto fresco","75",""],
+["Cena","Bresaola 100g + Verdura/Ortaggi q.b. (no pane)","• Prosciutto crudo sgrassato 90g\n• Fiocchi di latte 200g","195","Cena leggera post pranzo libero"],
+["Condimenti","2 cucchiaini olio e.v.o. + Aceto di mele / Succo di limone q.b.","Condimento leggero","90",""]]]
+];
+var $=function(i){return document.getElementById(i)};
+var now=new Date(),todayIdx=(now.getDay()+6)%7,sel=todayIdx,view='p';
+function iso(i){var d=new Date(now);d.setDate(d.getDate()+i-todayIdx);return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()}
+function load(){try{return JSON.parse(localStorage.getItem("pasto-"+iso(sel))||"{}")}catch(e){return{}}}
+function save(s){try{localStorage.setItem("pasto-"+iso(sel),JSON.stringify(s))}catch(e){}}
+function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+function render(){
+ var w=view==='w',sp=view==='s',p=view==='p';
+ document.querySelector("header").style.display=p?"":"none";
+ $("dname").parentNode.style.display=p?"":"none";
+ $("list").style.display=p?"":"none";
+ $("wt").style.display=w?"":"none";
+ $("sp").style.display=sp?"":"none";
+ $("np").className=p?"on":"";$("nw").className=w?"on":"";$("ns").className=sp?"on":"";
+ $("np").textContent="🍽 Piano";$("nw").textContent="⚖︎ Peso"+(needW()?" •":"");
+ if(w){renderW();return}
+ if(sp){renderS();return}
+ var t=$("tabs");t.innerHTML="";
+ D.forEach(function(d,i){var b=el("button","tab"+(i===sel?" on":"")+(i===todayIdx?" today":""),d[0].slice(0,3));b.onclick=function(){sel=i;render();window.scrollTo(0,0)};t.appendChild(b)});
+ var d=D[sel],s=load(),done=s.d||{};
+ $("dname").textContent=d[0]+(sel===todayIdx?" · oggi":"");
+ $("dinfo").textContent=d[1];
+ var L=$("list");L.innerHTML="";
+ d[2].forEach(function(m,i){
+  var free=m[1].indexOf("LIBERO")===0,cond=m[0]==="Condimenti";
+  var c=el("article","meal"+(done[i]?" done":"")+(free?" free":"")+(cond?" cond":""));
+  var b=el("button","chk",done[i]?"✓":"");b.setAttribute("aria-label","Segna "+m[0]);
+  b.onclick=function(){var x=load();x.d=x.d||{};x.d[i]=!x.d[i];save(x);render()};
+  var bd=el("div","body"),tp=el("div","top");
+  tp.appendChild(el("span","name",m[0]));tp.appendChild(el("span","kcal","~"+m[3]+" kcal"));
+  var ul=el("ul","items");
+  m[1].split(" + ").forEach(function(x){ul.appendChild(el("li",null,x))});
+  var ch=(s.s||{})[i];
+  if(ch)ul.appendChild(el("li","swap","↪ Oggi: "+ch));
+  bd.appendChild(tp);bd.appendChild(ul);
+  if(m[4])bd.appendChild(el("div","note",m[4]));
+  if(m[2]){var dt=el("details"),sm=el("summary",null,"Sostituzioni");dt.appendChild(sm);
+   m[2].split("\n").forEach(function(l){
+    if(l.charAt(0)!=="•"){dt.appendChild(el("p","alt",l));return}
+    var tx=l.slice(1).trim(),bt=el("button","altb"+(ch===tx?" sel":""),tx);
+    bt.onclick=function(){var x=load();x.s=x.s||{};if(x.s[i]===tx)delete x.s[i];else x.s[i]=tx;save(x);render()};
+    dt.appendChild(bt)});
+   bd.appendChild(dt)}
+  c.appendChild(b);c.appendChild(bd);L.appendChild(c);
+ });
+}
+var sx=0;
+document.addEventListener("touchstart",function(e){sx=e.changedTouches[0].clientX},{passive:true});
+document.addEventListener("touchend",function(e){var dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>90){sel=Math.max(0,Math.min(6,sel+(dx<0?1:-1)));render()}},{passive:true});
+function wl(){try{return JSON.parse(localStorage.getItem("pasto-peso")||"[]")}catch(e){return[]}}
+function ws(a){try{localStorage.setItem("pasto-peso",JSON.stringify(a))}catch(e){}}
+function fk(n){return n.toFixed(1).replace(".",",")}
+function fd(s){var p=s.split("-");return p[2]+"/"+p[1]+"/"+p[0]}
+function renderW(){
+ var a=wl().sort(function(x,y){return x.d<y.d?-1:1});
+ var T=$("wt");T.innerHTML="";
+ var h=el("div","head");h.appendChild(el("h1",null,"Peso"));h.appendChild(el("span",null,"kg"));T.appendChild(h);
+ var row=el("div","wadd"),inp=el("input");inp.type="text";inp.setAttribute("inputmode","decimal");inp.placeholder="es. 72,4";
+ var sv=el("button",null,"Salva");
+ sv.onclick=function(){
+  var v=parseFloat(inp.value.replace(",","."));if(!(v>20&&v<400))return;
+  var n=new Date(),k=n.getFullYear()+"-"+("0"+(n.getMonth()+1)).slice(-2)+"-"+("0"+n.getDate()).slice(-2);
+  var l=wl().filter(function(x){return x.d!==k});l.push({d:k,w:Math.round(v*10)/10});ws(l);renderW();
+ };
+ row.appendChild(inp);row.appendChild(sv);T.appendChild(row);
+ if(!a.length){T.appendChild(el("p","alt","Inserisci il tuo peso di oggi: ogni salvataggio aggiorna la data odierna."));backupUI(T);return}
+ var last=a[a.length-1],box=el("div","wbig");
+ var b=el("b",null,fk(last.w)+" kg");box.appendChild(b);
+ var cut=new Date();cut.setDate(cut.getDate()-6);var ck7=ymd(cut);
+ var r7=a.filter(function(x){return x.d>=ck7}),av=r7.reduce(function(q,x){return q+x.w},0)/r7.length;
+ box.appendChild(el("p",null,"Media 7 giorni: "+fk(av)+" kg"));
+ var g=gget();
+ box.appendChild(el("p",null,g?(last.w>g+.05?"Mancano "+fk(last.w-g)+" kg all'obiettivo di "+fk(g)+" kg":"Obiettivo di "+fk(g)+" kg raggiunto 🎉"):"Nessun obiettivo impostato"));
+ if(a.length>1){
+  var dp=last.w-a[a.length-2].w,dt=last.w-a[0].w;
+  var sg=function(x){return(x>0?"+":x<0?"−":"")+fk(Math.abs(x))};
+  box.appendChild(el("p",null,sg(dp)+" kg dall'ultima misura · "+sg(dt)+" kg dall'inizio"));
+  var pts=a.slice(-30),mn=Math.min.apply(null,pts.map(function(x){return x.w})),mx=Math.max.apply(null,pts.map(function(x){return x.w}));
+  if(mx===mn){mx+=.5;mn-=.5}
+  var X=function(i){return 10+i*(280/(pts.length-1))},Y=function(v){return 15+(mx-v)/(mx-mn)*90};
+  var pl=pts.map(function(p,i){return X(i)+","+Y(p.w)}).join(" ");
+  var dots=pts.map(function(p,i){return '<circle cx="'+X(i)+'" cy="'+Y(p.w)+'" r="3.5" style="fill:var(--green)"/>'}).join("");
+  var svg='<svg viewBox="0 0 300 120"><polyline points="'+pl+'" style="fill:none;stroke:var(--green);stroke-width:2.5;stroke-linejoin:round"/>'+dots+'<text x="10" y="10" font-size="10" style="fill:var(--muted)">'+fk(mx)+'</text><text x="10" y="118" font-size="10" style="fill:var(--muted)">'+fk(mn)+'</text></svg>';
+  box.insertAdjacentHTML("beforeend",svg);
+ }else box.appendChild(el("p",null,"Prima misura · "+fd(last.d)));
+ T.appendChild(box);
+ var gr=el("div","wadd"),gi=el("input");gi.type="text";gi.setAttribute("inputmode","decimal");gi.placeholder="Obiettivo (kg)";gi.style.fontSize="16px";
+ var gb=el("button",null,"Imposta");gb.style.padding="10px 16px";
+ gb.onclick=function(){var v=parseFloat(gi.value.replace(",","."));if(v>20&&v<400){try{localStorage.setItem("pasto-goal",String(v))}catch(e){}renderW()}};
+ gr.appendChild(gi);gr.appendChild(gb);T.appendChild(gr);
+ a.slice().reverse().forEach(function(x){
+  var r=el("div","wrow");r.appendChild(el("span",null,fd(x.d)));r.appendChild(el("b",null,fk(x.w)+" kg"));
+  var del=el("button",null,"✕");del.setAttribute("aria-label","Elimina");
+  del.onclick=function(){if(confirm("Eliminare la misura del "+fd(x.d)+"?")){ws(wl().filter(function(y){return y.d!==x.d}));renderW()}};
+  r.appendChild(del);T.appendChild(r);
+ });
+ backupUI(T);
+}
+function ymd(d){return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2)}
+function needW(){return !wl().some(function(x){return x.d===ymd(new Date())})}
+function gget(){try{var g=parseFloat(localStorage.getItem("pasto-goal"));return g>0?g:0}catch(e){return 0}}
+function backupUI(T){
+ var dt=el("details"),sm=el("summary",null,"Backup dati");dt.style.marginTop="22px";dt.appendChild(sm);
+ var ta=el("textarea");ta.rows=4;ta.placeholder="Qui compare il backup. Per ripristinare, incollalo qui e premi Ripristina";
+ ta.style.cssText="width:100%;margin-top:8px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:10px;font-size:14px";
+ var msg=el("p","alt","Salva il backup in Note o in un messaggio: contiene peso, obiettivo, spunte e sostituzioni.");
+ var r=el("div","wadd"),c=el("button",null,"Copia backup"),i=el("button",null,"Ripristina");
+ c.style.padding=i.style.padding="12px 18px";
+ c.onclick=function(){var o={};try{for(var k=0;k<localStorage.length;k++){var n=localStorage.key(k);if(n.indexOf("pasto-")===0)o[n]=localStorage.getItem(n)}}catch(e){}
+  ta.value=JSON.stringify(o);ta.select();try{document.execCommand("copy")}catch(e){}
+  try{navigator.clipboard.writeText(ta.value).catch(function(){})}catch(e){}
+  msg.textContent="Backup pronto. Se non è stato copiato, tieni premuto sul testo e scegli Copia."};
+ i.onclick=function(){try{var o=JSON.parse(ta.value),n=0;for(var k in o){if(k.indexOf("pasto-")===0){localStorage.setItem(k,o[k]);n++}}if(!n)throw 0;render()}catch(e){msg.textContent="Backup non valido."}};
+ r.appendChild(c);r.appendChild(i);dt.appendChild(r);dt.appendChild(ta);dt.appendChild(msg);T.appendChild(dt);
+}
+var S=[
+["Frutta e verdura",[["Frutta fresca","1,4 kg"],["Frutta secca","60 g"],["Verdura/ortaggi","q.b. ogni giorno"],["Patate (tortilla)","q.b."],["Limone / aceto di mele","q.b."]]],
+["Carboidrati",[["Pane integrale","270 g"],["Riso basmati","200 g"],["Couscous integrale","80 g"],["Fette biscottate integrali","8"],["Crackers","1 pacchetto"],["Marmellata","8 cc"],["Cioccolato fondente","10 g"],["Farina (crepe)","q.b."]]],
+["Carne e pesce",[["Petto di pollo","150 g"],["Hamburger di pollo","200 g"],["Bovino adulto magro","150 g"],["Pesce magro/fresco","350 g"],["Salmone affumicato","100 g"],["Fesa di tacchino","80 g"],["Bresaola","100 g"]]],
+["Latticini e uova",[["Latte p.scremato","800 ml"],["Uova","4"],["Albume (crepe)","q.b."],["Mozzarella lite / primo sale","100 g"],["Budino proteico","600 g"],["Parmigiano","5 cc"]]],
+["Legumi",[["Ceci cotti","150 g"],["Piselli cotti","150 g"]]],
+["Dispensa",[["Olio e.v.o.","22 cc (~110 ml)"]]]
+];
+function renderS(){
+ var T=$("sp");T.innerHTML="";
+ var h=el("div","head");h.appendChild(el("h1",null,"Spesa"));h.appendChild(el("span",null,"7 giorni"));T.appendChild(h);
+ var ck={};try{ck=JSON.parse(localStorage.getItem("pasto-spesa")||"{}")}catch(e){}
+ S.forEach(function(g){
+  T.appendChild(el("div","sgrp",g[0]));
+  g[1].forEach(function(it){
+   var b=el("button","srow"+(ck[it[0]]?" on":""));
+   b.appendChild(el("span","sc",ck[it[0]]?"✓":""));b.appendChild(el("span",null,it[0]));b.appendChild(el("i",null,it[1]));
+   b.onclick=function(){ck[it[0]]=!ck[it[0]];try{localStorage.setItem("pasto-spesa",JSON.stringify(ck))}catch(e){}renderS()};
+   T.appendChild(b)})});
+ var r=el("div","wadd"),z=el("button",null,"Azzera spunte");z.style.padding="12px 18px";
+ z.onclick=function(){try{localStorage.removeItem("pasto-spesa")}catch(e){}renderS()};
+ r.appendChild(z);T.appendChild(r);
+ T.appendChild(el("p","alt","Totali dei 7 giorni, esclusi i pasti liberi e le sostituzioni."));
+}
+render();
+</script>
+<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){})</script>
+</body>
+</html>
